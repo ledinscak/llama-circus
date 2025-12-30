@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Web Search Agent - Search DuckDuckGo and summarize results using Ollama."""
+
 import sys
 import re
 import os
