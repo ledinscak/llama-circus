@@ -180,20 +180,33 @@ def image_search(query: str) -> str:
       Description of the displayed image
     """
     try:
+        if verbose:
+            print(f"{Colors.DIM}[image_search] Searching for: {query}{Colors.RESET}")
+            sys.stdout.flush()
+
         with DDGS() as ddgs:
             results = list(ddgs.images(query, max_results=min(num_results, 5)))
+
+        if verbose:
+            print(f"{Colors.DIM}[image_search] Found {len(results)} images{Colors.RESET}")
+            sys.stdout.flush()
 
         if not results:
             return f"No images found for: {query}"
 
         errors = []
-        # Try to download and display the first working image
+        displayed_count = 0
+        # Try to download and display images
         for i, result in enumerate(results, 1):
             image_url = result.get("image", "")
             title = result.get("title", "No title")
 
             if not image_url:
                 continue
+
+            if verbose:
+                print(f"{Colors.DIM}[image_search] [{i}] Trying: {image_url[:60]}...{Colors.RESET}")
+                sys.stdout.flush()
 
             try:
                 # Download the image with browser-like headers
@@ -210,6 +223,10 @@ def image_search(query: str) -> str:
                     stream=True
                 )
                 response.raise_for_status()
+
+                if verbose:
+                    print(f"{Colors.DIM}[image_search] [{i}] Downloaded ({response.headers.get('content-type', 'unknown')}){Colors.RESET}")
+                    sys.stdout.flush()
 
                 # Get file extension from URL or content type
                 content_type = response.headers.get("content-type", "")
@@ -242,9 +259,15 @@ def image_search(query: str) -> str:
                         print(f"\n{Colors.BOLD}{Colors.MAGENTA}[Image {i}: {title}]{Colors.RESET}")
                         print(f"{Colors.CYAN}{image_url}{Colors.RESET}\n")
                         print(result_output.stdout)
+                        sys.stdout.flush()
+                        displayed_count += 1
+                        # Return after first successful image
                         return f"Displayed image: {title} (URL: {image_url})"
                     else:
                         errors.append(f"[{i}] chafa error: {result_output.stderr}")
+                        if verbose:
+                            print(f"{Colors.RED}[image_search] [{i}] chafa failed: {result_output.stderr}{Colors.RESET}")
+                            sys.stdout.flush()
                 except FileNotFoundError:
                     return "Error: chafa is not installed. Install with: sudo apt install chafa"
                 except subprocess.TimeoutExpired:
@@ -256,6 +279,9 @@ def image_search(query: str) -> str:
 
             except requests.RequestException as e:
                 errors.append(f"[{i}] download error: {e}")
+                if verbose:
+                    print(f"{Colors.RED}[image_search] [{i}] download failed: {e}{Colors.RESET}")
+                    sys.stdout.flush()
                 continue
 
         error_details = "; ".join(errors) if errors else "unknown error"
@@ -376,6 +402,9 @@ if verbose:
     print(f"{Colors.BOLD}{Colors.BLUE}[Format]{Colors.RESET} {Colors.BRIGHT_CYAN}{output_format}{Colors.RESET}")
     print(f"{Colors.BOLD}{Colors.BLUE}[Results]{Colors.RESET} {Colors.BRIGHT_CYAN}{num_results}{Colors.RESET}")
     print(f"{Colors.BOLD}{Colors.BLUE}[Query]{Colors.RESET} {Colors.WHITE}{user_input}{Colors.RESET}")
+    print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.MAGENTA}[System Prompt]{Colors.RESET}")
+    print(f"{Colors.DIM}{system_prompt}{Colors.RESET}")
     print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
 
 response = chat(model=model, messages=messages, tools=tools)
