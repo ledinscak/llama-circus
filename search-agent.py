@@ -364,11 +364,11 @@ RESPONSE FORMAT:
 """,
     "all": """
 RESPONSE FORMAT:
-Create a comprehensive research report with visual illustrations.
+Create a comprehensive research report.
 
-MANDATORY: You MUST call image_search 2-3 times with different relevant queries to find images that illustrate the topic. Images will be displayed at the end of the report in an "Images" section.
+MANDATORY: You MUST call the image_search tool 2-3 times with different relevant queries. Do NOT write image descriptions - just call the tool and the system will display them automatically.
 
-Create the report with these sections:
+Create the report with these sections (in this exact order):
 
 ## Summary
 2-3 sentence executive summary answering the core question.
@@ -560,17 +560,35 @@ if verbose:
     print(f"{Colors.BOLD}{Colors.GREEN}[Final Answer]{Colors.RESET}")
     print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
 
-print(format_output(response.message.content))
-
-# Display buffered images at the end
+# Build image section if we have images
+image_section = ""
 if image_buffer:
-    print(f"\n{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}")
-    print(f"{Colors.BOLD}{Colors.MAGENTA}  IMAGES ({len(image_buffer)}){Colors.RESET}")
-    print(f"{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}\n")
+    image_section += f"\n{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}\n"
+    image_section += f"{Colors.BOLD}{Colors.MAGENTA}  IMAGES ({len(image_buffer)}){Colors.RESET}\n"
+    image_section += f"{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}\n\n"
 
     for i, img in enumerate(image_buffer, 1):
-        print(f"{Colors.BOLD}{Colors.CYAN}[Image {i}: {img['title']}]{Colors.RESET}")
-        print(f"{Colors.DIM}{img['url']}{Colors.RESET}\n")
-        print(img['output'])
+        image_section += f"{Colors.BOLD}{Colors.CYAN}[Image {i}: {img['title']}]{Colors.RESET}\n"
+        image_section += f"{Colors.DIM}{img['url']}{Colors.RESET}\n\n"
+        image_section += img['output']
         if i < len(image_buffer):
-            print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}\n")
+            image_section += f"\n{Colors.DIM}{'-' * 50}{Colors.RESET}\n\n"
+    image_section += "\n"
+
+# Get the formatted output
+output = format_output(response.message.content)
+
+# Insert images before Sources section if it exists
+if image_buffer:
+    # Try to find Sources section
+    import re as re_module
+    sources_match = re_module.search(r'\n(## Sources|Sources:)', output)
+    if sources_match:
+        # Insert images before Sources
+        insert_pos = sources_match.start()
+        output = output[:insert_pos] + image_section + output[insert_pos:]
+    else:
+        # No Sources section, append at end
+        output = output + image_section
+
+print(output)
