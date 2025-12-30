@@ -77,7 +77,8 @@ python utils/test-tool-support.py llama3.1:8b
 ## Project Structure
 
 ```
-├── search-agent.py      # Main web search agent
+├── search-agent.py      # Web search agent (DuckDuckGo)
+├── hn-agent.py          # Hacker News agent
 ├── examples/
 │   ├── single-tool.py   # Basic tool calling example
 │   ├── weather-tool.py  # Simple weather tool
@@ -151,6 +152,81 @@ python search-agent.py -v -m llama3.1:8b -f all -n 15 "SpaceX Starship progress"
 | `bullets` | Summary + bullet points | General use |
 | `detailed` | Comprehensive with context | In-depth answers |
 | `all` | Full research report with analysis, recommendations, images | Research tasks |
+
+---
+
+### hn-agent.py
+
+A Hacker News research assistant that helps developers discover and understand trending tech content using the official HN API.
+
+**Features:**
+- Access to all HN content types (top, new, best, ask, show, jobs)
+- Story details with top comments
+- Keyword search across stories
+- Developer-focused analysis with project ideas
+- Colorful ANSI terminal output
+
+**Available Tools:**
+
+| Tool | Description |
+|------|-------------|
+| `get_top_stories(limit)` | Current trending stories |
+| `get_new_stories(limit)` | Latest submissions |
+| `get_best_stories(limit)` | Highest rated stories |
+| `get_ask_hn(limit)` | Community questions and discussions |
+| `get_show_hn(limit)` | Project showcases and demos |
+| `get_jobs(limit)` | Job postings |
+| `get_story_details(story_id)` | Full story with top comments |
+| `search_stories(query, limit)` | Search stories by keyword |
+
+**Basic Examples:**
+
+```bash
+# Get top stories with analysis
+python hn-agent.py "What's trending on Hacker News today?"
+
+# Explore specific topics
+python hn-agent.py "Find stories about Rust programming"
+
+# Check job postings
+python hn-agent.py "Show me the latest job postings"
+
+# See Show HN projects
+python hn-agent.py "What interesting projects are people showing?"
+
+# Verbose mode to see tool calls
+python hn-agent.py -v "What are the best stories this week?"
+```
+
+**Advanced Examples:**
+
+```bash
+# Use a different model
+python hn-agent.py -m qwen3:8b "AI and machine learning discussions"
+
+# Get more results
+python hn-agent.py -n 20 "Latest news about startups"
+
+# Combine options
+python hn-agent.py -v -m llama3.1:8b -n 15 "Find discussions about Python"
+```
+
+**Command-Line Options:**
+
+| Flag | Long Form | Description | Default |
+|------|-----------|-------------|---------|
+| `-v` | `--verbose` | Show tool calls and intermediate results | off |
+| `-m` | `--model` | Ollama model to use | llama3.1:8b |
+| `-n` | `--num-results` | Number of stories to fetch | 10 |
+
+**Output Format:**
+
+The agent provides structured analysis including:
+- **Overview**: Brief summary of findings
+- **Key Stories**: Detailed breakdown with relevance and applications
+- **Insights**: Common themes and trending topics
+- **Project Ideas**: Hobby project suggestions inspired by the stories
+- **Sources**: Links to HN discussions
 
 ---
 
