@@ -7,6 +7,7 @@ A collection of Python scripts that use Ollama's tool/function calling capabilit
 Before you begin, make sure you have:
 
 1. **Python 3.8 or higher** installed
+
    ```bash
    python3 --version
    ```
@@ -14,15 +15,19 @@ Before you begin, make sure you have:
 2. **Ollama** installed and running
    - Install from [ollama.ai](https://ollama.ai/)
    - Start Ollama service:
+
      ```bash
      ollama serve
      ```
+
    - Pull a model with tool support:
+
      ```bash
      ollama pull llama3.1:8b
      ```
 
 3. **chafa** (optional, for displaying images in terminal)
+
    ```bash
    sudo apt install chafa
    ```
@@ -32,8 +37,8 @@ Before you begin, make sure you have:
 ### Step 1: Clone or download this repository
 
 ```bash
-git clone <repository-url>
-cd ollama
+git clone https://github.com/ledinscak/llama-circus.git
+cd llama-circus
 ```
 
 ### Step 2: Create a Python virtual environment
@@ -48,7 +53,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Activate it (Windows)
-# venv\Scripts\activate
+venv\Scripts\activate
 ```
 
 Your terminal prompt should now show `(venv)` at the beginning.
@@ -60,6 +65,7 @@ pip install ollama requests ddgs
 ```
 
 This installs:
+
 - `ollama` - Python client for Ollama API
 - `requests` - HTTP library for web requests
 - `ddgs` - DuckDuckGo search library
@@ -97,6 +103,7 @@ python utils/test-tool-support.py llama3.1:8b
 A powerful web search agent that searches DuckDuckGo, summarizes results using AI, and can display images in terminal.
 
 **Features:**
+
 - Web search, news search, and image search
 - Multiple output formats (brief, bullets, detailed, all)
 - Configurable model and result count
@@ -160,6 +167,7 @@ python search-agent.py -v -m llama3.1:8b -f all -n 15 "SpaceX Starship progress"
 A Hacker News research assistant that helps developers discover and understand trending tech content using the official HN API.
 
 **Features:**
+
 - Access to all HN content types (top, new, best, ask, show, jobs)
 - Story details with top comments
 - Keyword search across stories
@@ -222,6 +230,7 @@ python hn-agent.py -v -m llama3.1:8b -n 15 "Find discussions about Python"
 **Output Format:**
 
 The agent provides structured analysis including:
+
 - **Overview**: Brief summary of findings
 - **Key Stories**: Detailed breakdown with relevance and applications
 - **Insights**: Common themes and trending topics
@@ -281,6 +290,7 @@ python utils/test-tool-support.py llama3.1:8b qwen3:8b mistral:7b gemma2:9b
 ```
 
 **Example Output:**
+
 ```
 ✓ llama3.1:8b: Supports tools
 ✓ qwen3:8b: Supports tools
@@ -302,6 +312,7 @@ python utils/test-image.py
 ```
 
 This tests:
+
 1. chafa installation
 2. DuckDuckGo image search
 3. Image download
@@ -328,24 +339,31 @@ Use `test-tool-support.py` to verify support for other models.
 ## Troubleshooting
 
 ### "No module named 'ollama'"
+
 Make sure you activated the virtual environment:
+
 ```bash
 source venv/bin/activate
 ```
 
 ### "Connection refused" or Ollama errors
+
 Make sure Ollama is running:
+
 ```bash
 ollama serve
 ```
 
 ### Images not displaying
+
 1. Install chafa: `sudo apt install chafa`
 2. Run `python utils/test-image.py` to diagnose
 3. Some images may fail due to website restrictions (403 errors)
 
 ### Model doesn't support tools
+
 Try a different model:
+
 ```bash
 python search-agent.py -m llama3.1:8b "your query"
 ```
@@ -353,6 +371,7 @@ python search-agent.py -m llama3.1:8b "your query"
 ## Deactivating Virtual Environment
 
 When you're done, deactivate the virtual environment:
+
 ```bash
 deactivate
 ```
