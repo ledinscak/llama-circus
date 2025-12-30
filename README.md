@@ -85,20 +85,15 @@ python utils/test-tool-support.py llama3.1:8b
 ```
 ├── search-agent.py      # Web search agent (DuckDuckGo)
 ├── hn-agent.py          # Hacker News agent
-├── examples/
-│   ├── single-tool.py   # Basic tool calling example
-│   ├── weather-tool.py  # Simple weather tool
-│   └── weather-agent.py # Weather agent with forecast
-├── utils/
-│   ├── test-tool-support.py  # Test model tool support
-│   └── test-image.py         # Debug image display
+├── examples/            # Learning examples (see examples/README.md)
+├── utils/               # Helper scripts (see utils/README.md)
 ├── README.md
 └── LICENSE
 ```
 
-## Scripts
+## Agents
 
-### search-agent.py (Main)
+### search-agent.py
 
 A powerful web search agent that searches DuckDuckGo, summarizes results using AI, and can display images in terminal.
 
@@ -237,87 +232,6 @@ The agent provides structured analysis including:
 - **Project Ideas**: Hobby project suggestions inspired by the stories
 - **Sources**: Links to HN discussions
 
----
-
-### examples/weather-agent.py
-
-Weather agent using wttr.in API. Understands natural language questions about weather.
-
-**Examples:**
-
-```bash
-# Current weather
-python examples/weather-agent.py "What's the weather like in London?"
-
-# Weather forecast
-python examples/weather-agent.py "Will it rain in Paris tomorrow?"
-
-# Multi-day forecast
-python examples/weather-agent.py "Give me a 3-day forecast for Tokyo"
-
-# Temperature query
-python examples/weather-agent.py "How cold is it in Oslo right now?"
-```
-
----
-
-### examples/weather-tool.py
-
-Simple weather tool demonstrating basic Ollama tool calling. Takes city as command-line argument.
-
-**Examples:**
-
-```bash
-python examples/weather-tool.py London
-python examples/weather-tool.py "New York"
-python examples/weather-tool.py Tokyo
-```
-
----
-
-### utils/test-tool-support.py
-
-Utility to test if Ollama models support tool/function calling.
-
-**Examples:**
-
-```bash
-# Test single model
-python utils/test-tool-support.py llama3.1:8b
-
-# Test multiple models
-python utils/test-tool-support.py llama3.1:8b qwen3:8b mistral:7b gemma2:9b
-```
-
-**Example Output:**
-
-```
-✓ llama3.1:8b: Supports tools
-✓ qwen3:8b: Supports tools
-✗ gemma:7b: No tool support (...)
-
---- Summary ---
-Supported: llama3.1:8b, qwen3:8b
-Unsupported: gemma:7b
-```
-
----
-
-### utils/test-image.py
-
-Debug script to test the image search and display pipeline. Run this if images aren't showing.
-
-```bash
-python utils/test-image.py
-```
-
-This tests:
-
-1. chafa installation
-2. DuckDuckGo image search
-3. Image download
-4. Terminal display
-
 ## Supported Ollama Models
 
 Models known to support tool calling:
@@ -334,7 +248,7 @@ Models known to support tool calling:
 | `mixtral:8x7b` | 8x7B | MoE model |
 | `command-r` | - | Cohere model |
 
-Use `test-tool-support.py` to verify support for other models.
+Use `utils/test-tool-support.py` to verify support for other models.
 
 ## Troubleshooting
 
