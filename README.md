@@ -71,12 +71,27 @@ This installs:
 ollama list
 
 # Test if your model supports tools
-python test-tool-support.py llama3.1:8b
+python utils/test-tool-support.py llama3.1:8b
+```
+
+## Project Structure
+
+```
+├── search-agent.py      # Main web search agent
+├── examples/
+│   ├── single-tool.py   # Basic tool calling example
+│   ├── weather-tool.py  # Simple weather tool
+│   └── weather-agent.py # Weather agent with forecast
+├── utils/
+│   ├── test-tool-support.py  # Test model tool support
+│   └── test-image.py         # Debug image display
+├── README.md
+└── LICENSE
 ```
 
 ## Scripts
 
-### search-agent.py
+### search-agent.py (Main)
 
 A powerful web search agent that searches DuckDuckGo, summarizes results using AI, and can display images in terminal.
 
@@ -139,7 +154,7 @@ python search-agent.py -v -m llama3.1:8b -f all -n 15 "SpaceX Starship progress"
 
 ---
 
-### weather-agent.py
+### examples/weather-agent.py
 
 Weather agent using wttr.in API. Understands natural language questions about weather.
 
@@ -147,35 +162,35 @@ Weather agent using wttr.in API. Understands natural language questions about we
 
 ```bash
 # Current weather
-python weather-agent.py "What's the weather like in London?"
+python examples/weather-agent.py "What's the weather like in London?"
 
 # Weather forecast
-python weather-agent.py "Will it rain in Paris tomorrow?"
+python examples/weather-agent.py "Will it rain in Paris tomorrow?"
 
 # Multi-day forecast
-python weather-agent.py "Give me a 3-day forecast for Tokyo"
+python examples/weather-agent.py "Give me a 3-day forecast for Tokyo"
 
 # Temperature query
-python weather-agent.py "How cold is it in Oslo right now?"
+python examples/weather-agent.py "How cold is it in Oslo right now?"
 ```
 
 ---
 
-### weather-tool.py
+### examples/weather-tool.py
 
 Simple weather tool demonstrating basic Ollama tool calling. Takes city as command-line argument.
 
 **Examples:**
 
 ```bash
-python weather-tool.py London
-python weather-tool.py "New York"
-python weather-tool.py Tokyo
+python examples/weather-tool.py London
+python examples/weather-tool.py "New York"
+python examples/weather-tool.py Tokyo
 ```
 
 ---
 
-### test-tool-support.py
+### utils/test-tool-support.py
 
 Utility to test if Ollama models support tool/function calling.
 
@@ -183,10 +198,10 @@ Utility to test if Ollama models support tool/function calling.
 
 ```bash
 # Test single model
-python test-tool-support.py llama3.1:8b
+python utils/test-tool-support.py llama3.1:8b
 
 # Test multiple models
-python test-tool-support.py llama3.1:8b qwen3:8b mistral:7b gemma2:9b
+python utils/test-tool-support.py llama3.1:8b qwen3:8b mistral:7b gemma2:9b
 ```
 
 **Example Output:**
@@ -202,12 +217,12 @@ Unsupported: gemma:7b
 
 ---
 
-### test-image.py
+### utils/test-image.py
 
 Debug script to test the image search and display pipeline. Run this if images aren't showing.
 
 ```bash
-python test-image.py
+python utils/test-image.py
 ```
 
 This tests:
@@ -250,7 +265,7 @@ ollama serve
 
 ### Images not displaying
 1. Install chafa: `sudo apt install chafa`
-2. Run `python test-image.py` to diagnose
+2. Run `python utils/test-image.py` to diagnose
 3. Some images may fail due to website restrictions (403 errors)
 
 ### Model doesn't support tools
