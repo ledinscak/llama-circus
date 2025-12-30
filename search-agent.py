@@ -12,8 +12,12 @@ from ddgs import DDGS
 # Default number of results (can be overridden by -n flag)
 num_results = 10
 
+# Buffer for images to display at the end
+image_buffer = []
+
 # ANSI color codes (using \x1b escape)
 ESC = "\x1b["
+
 
 class Colors:
     RESET = f"{ESC}0m"
@@ -52,7 +56,8 @@ def format_output(text: str) -> str:
         link_text = m.group(1)
         url = m.group(2)
         return f"{C.BOLD}{link_text}{C.RESET} {C.CYAN}{C.UNDERLINE}{url}{C.RESET}"
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', link_replace, text)
+
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link_replace, text)
 
     # Remove any remaining standalone [ or ] that might be left over
     # (from malformed markdown links)
@@ -60,40 +65,46 @@ def format_output(text: str) -> str:
     # Bold: **text** or __text__
     def bold_replace(m):
         return f"{C.BOLD}{m.group(1)}{C.RESET}"
-    text = re.sub(r'\*\*(.+?)\*\*', bold_replace, text)
-    text = re.sub(r'__(.+?)__', bold_replace, text)
+
+    text = re.sub(r"\*\*(.+?)\*\*", bold_replace, text)
+    text = re.sub(r"__(.+?)__", bold_replace, text)
 
     # Headers: # Header (must be at start of line)
     def header_replace(m):
         return f"{C.BOLD}{C.MAGENTA}{m.group(2)}{C.RESET}"
-    text = re.sub(r'^(#{1,6})\s+(.+)$', header_replace, text, flags=re.MULTILINE)
+
+    text = re.sub(r"^(#{1,6})\s+(.+)$", header_replace, text, flags=re.MULTILINE)
 
     # Bullet points (only dash)
     def bullet_replace(m):
         return f"{m.group(1)}{C.CYAN}•{C.RESET} "
-    text = re.sub(r'^(\s*)-\s+', bullet_replace, text, flags=re.MULTILINE)
+
+    text = re.sub(r"^(\s*)-\s+", bullet_replace, text, flags=re.MULTILINE)
 
     # Numbered lists
     def number_replace(m):
         return f"{m.group(1)}{C.CYAN}{m.group(2)}.{C.RESET} "
-    text = re.sub(r'^(\s*)(\d+)\.\s+', number_replace, text, flags=re.MULTILINE)
+
+    text = re.sub(r"^(\s*)(\d+)\.\s+", number_replace, text, flags=re.MULTILINE)
 
     # Inline code: `code`
     def code_replace(m):
         return f"{C.BRIGHT_YELLOW}{m.group(1)}{C.RESET}"
-    text = re.sub(r'`([^`]+)`', code_replace, text)
+
+    text = re.sub(r"`([^`]+)`", code_replace, text)
 
     # Standalone URLs
     def url_replace(m):
         return f"{C.CYAN}{C.UNDERLINE}{m.group(0)}{C.RESET}"
-    text = re.sub(r'(?<![(\[])(https?://[^\s)\]<>]+)', url_replace, text)
+
+    text = re.sub(r"(?<![(\[])(https?://[^\s)\]<>]+)", url_replace, text)
 
     # Clean up any leftover markdown artifacts
-    text = re.sub(r'\[([^\]]+)\](?!\()', r'\1', text)  # [text] without (url)
+    text = re.sub(r"\[([^\]]+)\](?!\()", r"\1", text)  # [text] without (url)
 
     # Clean up any stray ANSI-like codes that might appear from LLM output
     # (e.g., literal "1m", "0m" without the escape prefix)
-    text = re.sub(r'(?<!\x1b\[)(?<!\d)([0-9]{1,2})m(?=\s|[A-Z])', '', text)
+    text = re.sub(r"(?<!\x1b\[)(?<!\d)([0-9]{1,2})m(?=\s|[A-Z])", "", text)
 
     return text
 
@@ -142,7 +153,9 @@ def news_search(query: str) -> str:
                 date = r.get("date", "Unknown date")
                 url = r.get("url", "")
                 source = r.get("source", "Unknown source")
-                results.append(f"[{i}] Title: {title}\nSource: {source}\nDate: {date}\nSnippet: {body}\nURL: {url}")
+                results.append(
+                    f"[{i}] Title: {title}\nSource: {source}\nDate: {date}\nSnippet: {body}\nURL: {url}"
+                )
 
         if not results:
             return f"No news found for: {query}"
@@ -188,7 +201,9 @@ def image_search(query: str) -> str:
             results = list(ddgs.images(query, max_results=min(num_results, 5)))
 
         if verbose:
-            print(f"{Colors.DIM}[image_search] Found {len(results)} images{Colors.RESET}")
+            print(
+                f"{Colors.DIM}[image_search] Found {len(results)} images{Colors.RESET}"
+            )
             sys.stdout.flush()
 
         if not results:
@@ -205,7 +220,9 @@ def image_search(query: str) -> str:
                 continue
 
             if verbose:
-                print(f"{Colors.DIM}[image_search] [{i}] Trying: {image_url[:60]}...{Colors.RESET}")
+                print(
+                    f"{Colors.DIM}[image_search] [{i}] Trying: {image_url[:60]}...{Colors.RESET}"
+                )
                 sys.stdout.flush()
 
             try:
@@ -217,15 +234,14 @@ def image_search(query: str) -> str:
                     "Referer": "https://duckduckgo.com/",
                 }
                 response = requests.get(
-                    image_url,
-                    timeout=10,
-                    headers=headers,
-                    stream=True
+                    image_url, timeout=10, headers=headers, stream=True
                 )
                 response.raise_for_status()
 
                 if verbose:
-                    print(f"{Colors.DIM}[image_search] [{i}] Downloaded ({response.headers.get('content-type', 'unknown')}){Colors.RESET}")
+                    print(
+                        f"{Colors.DIM}[image_search] [{i}] Downloaded ({response.headers.get('content-type', 'unknown')}){Colors.RESET}"
+                    )
                     sys.stdout.flush()
 
                 # Get file extension from URL or content type
@@ -250,23 +266,31 @@ def image_search(query: str) -> str:
                 # Display using chafa
                 try:
                     result_output = subprocess.run(
-                        ["chafa", "--size=60x30", "--colors=256", tmp_path],
+                        ["chafa-dev", "--size=60x30", "--colors=256", tmp_path],
                         capture_output=True,
                         text=True,
-                        timeout=10
+                        timeout=10,
                     )
                     if result_output.returncode == 0:
-                        print(f"\n{Colors.BOLD}{Colors.MAGENTA}[Image {i}: {title}]{Colors.RESET}")
-                        print(f"{Colors.CYAN}{image_url}{Colors.RESET}\n")
-                        print(result_output.stdout)
-                        sys.stdout.flush()
+                        # Buffer the image for display at the end
+                        image_data = {
+                            "title": title,
+                            "url": image_url,
+                            "output": result_output.stdout
+                        }
+                        image_buffer.append(image_data)
                         displayed_count += 1
-                        # Return after first successful image
-                        return f"Displayed image: {title} (URL: {image_url})"
+                        if verbose:
+                            print(f"{Colors.GREEN}[image_search] [{i}] Queued for display: {title[:40]}...{Colors.RESET}")
+                            sys.stdout.flush()
+                        # Return after first successful image per search
+                        return f"Image queued: {title} (URL: {image_url})"
                     else:
                         errors.append(f"[{i}] chafa error: {result_output.stderr}")
                         if verbose:
-                            print(f"{Colors.RED}[image_search] [{i}] chafa failed: {result_output.stderr}{Colors.RESET}")
+                            print(
+                                f"{Colors.RED}[image_search] [{i}] chafa failed: {result_output.stderr}{Colors.RESET}"
+                            )
                             sys.stdout.flush()
                 except FileNotFoundError:
                     return "Error: chafa is not installed. Install with: sudo apt install chafa"
@@ -280,7 +304,9 @@ def image_search(query: str) -> str:
             except requests.RequestException as e:
                 errors.append(f"[{i}] download error: {e}")
                 if verbose:
-                    print(f"{Colors.RED}[image_search] [{i}] download failed: {e}{Colors.RESET}")
+                    print(
+                        f"{Colors.RED}[image_search] [{i}] download failed: {e}{Colors.RESET}"
+                    )
                     sys.stdout.flush()
                 continue
 
@@ -340,9 +366,9 @@ RESPONSE FORMAT:
 RESPONSE FORMAT:
 Create a comprehensive research report with visual illustrations.
 
-MANDATORY FIRST STEP: Before writing the report, you MUST call image_search 2 times with relevant queries to display images that illustrate the topic. Do this BEFORE gathering text information.
+MANDATORY: You MUST call image_search 2-3 times with different relevant queries to find images that illustrate the topic. Images will be displayed at the end of the report in an "Images" section.
 
-Then create the report with these sections:
+Create the report with these sections:
 
 ## Summary
 2-3 sentence executive summary answering the core question.
@@ -370,7 +396,7 @@ Suggest 3-5 specific topics, questions, or search queries the user could explore
 List all URLs used with brief description of what each source provided.
 
 GUIDELINES FOR THIS FORMAT:
-- MANDATORY: Call image_search at least 2 times FIRST before other searches
+- MANDATORY: Call image_search 2-3 times with varied queries related to the topic
 - Be thorough and analytical, not just descriptive
 - Connect dots between different pieces of information
 - Highlight what's most significant and why
@@ -379,13 +405,34 @@ GUIDELINES FOR THIS FORMAT:
 """,
 }
 
-parser = argparse.ArgumentParser(description="Search the web and get AI-summarized answers")
+parser = argparse.ArgumentParser(
+    description="Search the web and get AI-summarized answers"
+)
 parser.add_argument("query", help="The search query")
-parser.add_argument("-v", "--verbose", action="store_true", help="Show intermediate results")
-parser.add_argument("-m", "--model", default="llama3.1:8b", help="Ollama model to use (default: llama3.1:8b)")
-parser.add_argument("-f", "--format", dest="output_format", choices=["brief", "detailed", "bullets", "all"],
-                    default="bullets", help="Output format: brief, detailed, bullets, or all (default: bullets)")
-parser.add_argument("-n", "--num-results", type=int, default=10, help="Number of search results to fetch (default: 10)")
+parser.add_argument(
+    "-v", "--verbose", action="store_true", help="Show intermediate results"
+)
+parser.add_argument(
+    "-m",
+    "--model",
+    default="llama3.1:8b",
+    help="Ollama model to use (default: llama3.1:8b)",
+)
+parser.add_argument(
+    "-f",
+    "--format",
+    dest="output_format",
+    choices=["brief", "detailed", "bullets", "all"],
+    default="bullets",
+    help="Output format: brief, detailed, bullets, or all (default: bullets)",
+)
+parser.add_argument(
+    "-n",
+    "--num-results",
+    type=int,
+    default=10,
+    help="Number of search results to fetch (default: 10)",
+)
 args = parser.parse_args()
 
 user_input = args.query
@@ -402,10 +449,18 @@ messages = [
 ]
 
 if verbose:
-    print(f"{Colors.BOLD}{Colors.BLUE}[Model]{Colors.RESET} {Colors.BRIGHT_CYAN}{model}{Colors.RESET}")
-    print(f"{Colors.BOLD}{Colors.BLUE}[Format]{Colors.RESET} {Colors.BRIGHT_CYAN}{output_format}{Colors.RESET}")
-    print(f"{Colors.BOLD}{Colors.BLUE}[Results]{Colors.RESET} {Colors.BRIGHT_CYAN}{num_results}{Colors.RESET}")
-    print(f"{Colors.BOLD}{Colors.BLUE}[Query]{Colors.RESET} {Colors.WHITE}{user_input}{Colors.RESET}")
+    print(
+        f"{Colors.BOLD}{Colors.BLUE}[Model]{Colors.RESET} {Colors.BRIGHT_CYAN}{model}{Colors.RESET}"
+    )
+    print(
+        f"{Colors.BOLD}{Colors.BLUE}[Format]{Colors.RESET} {Colors.BRIGHT_CYAN}{output_format}{Colors.RESET}"
+    )
+    print(
+        f"{Colors.BOLD}{Colors.BLUE}[Results]{Colors.RESET} {Colors.BRIGHT_CYAN}{num_results}{Colors.RESET}"
+    )
+    print(
+        f"{Colors.BOLD}{Colors.BLUE}[Query]{Colors.RESET} {Colors.WHITE}{user_input}{Colors.RESET}"
+    )
     print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
     print(f"{Colors.BOLD}{Colors.MAGENTA}[System Prompt]{Colors.RESET}")
     print(f"{Colors.DIM}{system_prompt}{Colors.RESET}")
@@ -419,8 +474,12 @@ messages.append(response.message)
 while response.message.tool_calls:
     for call in response.message.tool_calls:
         if verbose:
-            print(f"{Colors.BOLD}{Colors.YELLOW}[Tool Call]{Colors.RESET} {Colors.BRIGHT_YELLOW}{call.function.name}{Colors.RESET}")
-            print(f"{Colors.BOLD}{Colors.CYAN}[Arguments]{Colors.RESET} {Colors.DIM}{call.function.arguments}{Colors.RESET}")
+            print(
+                f"{Colors.BOLD}{Colors.YELLOW}[Tool Call]{Colors.RESET} {Colors.BRIGHT_YELLOW}{call.function.name}{Colors.RESET}"
+            )
+            print(
+                f"{Colors.BOLD}{Colors.CYAN}[Arguments]{Colors.RESET} {Colors.DIM}{call.function.arguments}{Colors.RESET}"
+            )
             print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
 
         func = available_functions.get(call.function.name)
@@ -434,15 +493,59 @@ while response.message.tool_calls:
             # Color the result parts
             colored_result = result
             # Enumerate numbers [1], [2], etc.
-            colored_result = re.sub(r'^\[(\d+)\]', f'{Colors.BOLD}{Colors.YELLOW}[\\1]{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(Title:)', f'{Colors.BOLD}{Colors.MAGENTA}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(Snippet:)', f'{Colors.BRIGHT_BLACK}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(URL:)', f'{Colors.CYAN}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(Source:)', f'{Colors.YELLOW}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(Date:)', f'{Colors.BLUE}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(Displayed image:)', f'{Colors.BOLD}{Colors.GREEN}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'^(Could not display|Error|No images)', f'{Colors.RED}\\1{Colors.RESET}', colored_result, flags=re.MULTILINE)
-            colored_result = re.sub(r'(https?://[^\s]+)', f'{Colors.CYAN}{Colors.UNDERLINE}\\1{Colors.RESET}', colored_result)
+            colored_result = re.sub(
+                r"^\[(\d+)\]",
+                f"{Colors.BOLD}{Colors.YELLOW}[\\1]{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(Title:)",
+                f"{Colors.BOLD}{Colors.MAGENTA}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(Snippet:)",
+                f"{Colors.BRIGHT_BLACK}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(URL:)",
+                f"{Colors.CYAN}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(Source:)",
+                f"{Colors.YELLOW}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(Date:)",
+                f"{Colors.BLUE}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(Displayed image:|Image queued:)",
+                f"{Colors.BOLD}{Colors.GREEN}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"^(Could not display|Error|No images)",
+                f"{Colors.RED}\\1{Colors.RESET}",
+                colored_result,
+                flags=re.MULTILINE,
+            )
+            colored_result = re.sub(
+                r"(https?://[^\s]+)",
+                f"{Colors.CYAN}{Colors.UNDERLINE}\\1{Colors.RESET}",
+                colored_result,
+            )
             print(colored_result)
             print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
 
@@ -458,3 +561,16 @@ if verbose:
     print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}")
 
 print(format_output(response.message.content))
+
+# Display buffered images at the end
+if image_buffer:
+    print(f"\n{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.MAGENTA}  IMAGES ({len(image_buffer)}){Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}\n")
+
+    for i, img in enumerate(image_buffer, 1):
+        print(f"{Colors.BOLD}{Colors.CYAN}[Image {i}: {img['title']}]{Colors.RESET}")
+        print(f"{Colors.DIM}{img['url']}{Colors.RESET}\n")
+        print(img['output'])
+        if i < len(image_buffer):
+            print(f"{Colors.DIM}{'-' * 50}{Colors.RESET}\n")
