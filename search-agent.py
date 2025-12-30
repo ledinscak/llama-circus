@@ -196,11 +196,17 @@ def image_search(query: str) -> str:
                 continue
 
             try:
-                # Download the image
+                # Download the image with browser-like headers
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Referer": "https://duckduckgo.com/",
+                }
                 response = requests.get(
                     image_url,
                     timeout=10,
-                    headers={"User-Agent": "Mozilla/5.0"},
+                    headers=headers,
                     stream=True
                 )
                 response.raise_for_status()
@@ -339,6 +345,7 @@ GUIDELINES FOR THIS FORMAT:
 - Highlight what's most significant and why
 - Be honest about uncertainty or conflicting information
 - Make recommendations specific and actionable
+- IMPORTANT: Use image_search at least 2 times to find and display relevant images that illustrate the topic
 """,
 }
 
