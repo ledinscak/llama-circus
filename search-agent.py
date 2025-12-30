@@ -266,7 +266,7 @@ def image_search(query: str) -> str:
                 # Display using chafa
                 try:
                     result_output = subprocess.run(
-                        ["chafa-dev", "--size=60x30", "--colors=256", tmp_path],
+                        ["chafa", tmp_path],
                         capture_output=True,
                         text=True,
                         timeout=10,
@@ -276,12 +276,14 @@ def image_search(query: str) -> str:
                         image_data = {
                             "title": title,
                             "url": image_url,
-                            "output": result_output.stdout
+                            "output": result_output.stdout,
                         }
                         image_buffer.append(image_data)
                         displayed_count += 1
                         if verbose:
-                            print(f"{Colors.GREEN}[image_search] [{i}] Queued for display: {title[:40]}...{Colors.RESET}")
+                            print(
+                                f"{Colors.GREEN}[image_search] [{i}] Queued for display: {title[:40]}...{Colors.RESET}"
+                            )
                             sys.stdout.flush()
                         # Return after first successful image per search
                         return f"Image queued: {title} (URL: {image_url})"
@@ -353,7 +355,8 @@ RESPONSE FORMAT:
 1. Start with a direct answer (2-3 sentences)
 2. Provide comprehensive details with context and background
 3. Include relevant statistics, dates, and quotes when available
-4. End with "Sources:" listing all URLs you used
+4. Display images from calling image_search with specific queries based on what you learned
+5. End with "Sources:" listing all URLs you used
 """,
     "bullets": """
 RESPONSE FORMAT:
@@ -366,7 +369,11 @@ RESPONSE FORMAT:
 RESPONSE FORMAT:
 Create a comprehensive research report.
 
-MANDATORY: You MUST call the image_search tool 2-3 times with different relevant queries. Do NOT write image descriptions - just call the tool and the system will display them automatically.
+IMPORTANT ORDER OF OPERATIONS:
+1. FIRST: Use web_search and/or news_search to gather all text information
+2. LAST: After you have all the information, call image_search 2-3 times with specific queries based on what you learned (e.g., key people, products, events mentioned)
+
+Do NOT write image descriptions in your response - just call the image_search tool and the system will display images automatically.
 
 Create the report with these sections (in this exact order):
 
@@ -396,7 +403,7 @@ Suggest 3-5 specific topics, questions, or search queries the user could explore
 List all URLs used with brief description of what each source provided.
 
 GUIDELINES FOR THIS FORMAT:
-- MANDATORY: Call image_search 2-3 times with varied queries related to the topic
+- Search for text information FIRST, then call image_search LAST with context-aware queries
 - Be thorough and analytical, not just descriptive
 - Connect dots between different pieces of information
 - Highlight what's most significant and why
@@ -564,13 +571,17 @@ if verbose:
 image_section = ""
 if image_buffer:
     image_section += f"\n{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}\n"
-    image_section += f"{Colors.BOLD}{Colors.MAGENTA}  IMAGES ({len(image_buffer)}){Colors.RESET}\n"
+    image_section += (
+        f"{Colors.BOLD}{Colors.MAGENTA}  IMAGES ({len(image_buffer)}){Colors.RESET}\n"
+    )
     image_section += f"{Colors.BOLD}{Colors.MAGENTA}{'=' * 50}{Colors.RESET}\n\n"
 
     for i, img in enumerate(image_buffer, 1):
-        image_section += f"{Colors.BOLD}{Colors.CYAN}[Image {i}: {img['title']}]{Colors.RESET}\n"
+        image_section += (
+            f"{Colors.BOLD}{Colors.CYAN}[Image {i}: {img['title']}]{Colors.RESET}\n"
+        )
         image_section += f"{Colors.DIM}{img['url']}{Colors.RESET}\n\n"
-        image_section += img['output']
+        image_section += img["output"]
         if i < len(image_buffer):
             image_section += f"\n{Colors.DIM}{'-' * 50}{Colors.RESET}\n\n"
     image_section += "\n"
@@ -582,7 +593,8 @@ output = format_output(response.message.content)
 if image_buffer:
     # Try to find Sources section
     import re as re_module
-    sources_match = re_module.search(r'\n(## Sources|Sources:)', output)
+
+    sources_match = re_module.search(r"\n(## Sources|Sources:)", output)
     if sources_match:
         # Insert images before Sources
         insert_pos = sources_match.start()
