@@ -338,7 +338,11 @@ RESPONSE FORMAT:
 """,
     "all": """
 RESPONSE FORMAT:
-Create a comprehensive research report with the following sections:
+Create a comprehensive research report with visual illustrations.
+
+MANDATORY FIRST STEP: Before writing the report, you MUST call image_search 2 times with relevant queries to display images that illustrate the topic. Do this BEFORE gathering text information.
+
+Then create the report with these sections:
 
 ## Summary
 2-3 sentence executive summary answering the core question.
@@ -366,12 +370,12 @@ Suggest 3-5 specific topics, questions, or search queries the user could explore
 List all URLs used with brief description of what each source provided.
 
 GUIDELINES FOR THIS FORMAT:
+- MANDATORY: Call image_search at least 2 times FIRST before other searches
 - Be thorough and analytical, not just descriptive
 - Connect dots between different pieces of information
 - Highlight what's most significant and why
 - Be honest about uncertainty or conflicting information
 - Make recommendations specific and actionable
-- IMPORTANT: Use image_search at least 2 times to find and display relevant images that illustrate the topic
 """,
 }
 
