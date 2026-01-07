@@ -84,7 +84,7 @@ python utils/test-tool-support.py llama3.1:8b
 
 ```
 ├── search-agent.py      # Web search agent (DuckDuckGo)
-├── hn-agent.py          # Hacker News agent
+├── hacker-news-agent.py          # Hacker News agent
 ├── examples/            # Learning examples (see examples/README.md)
 ├── utils/               # Helper scripts (see utils/README.md)
 ├── README.md
@@ -157,7 +157,7 @@ python search-agent.py -v -m llama3.1:8b -f all -n 15 "SpaceX Starship progress"
 
 ---
 
-### hn-agent.py
+### hacker-news-agent.py
 
 A Hacker News research assistant that helps developers discover and understand trending tech content using the official HN API.
 
@@ -186,32 +186,32 @@ A Hacker News research assistant that helps developers discover and understand t
 
 ```bash
 # Get top stories with analysis
-python hn-agent.py "What's trending on Hacker News today?"
+python hacker-news-agent.py "What's trending on Hacker News today?"
 
 # Explore specific topics
-python hn-agent.py "Find stories about Rust programming"
+python hacker-news-agent.py "Find stories about Rust programming"
 
 # Check job postings
-python hn-agent.py "Show me the latest job postings"
+python hacker-news-agent.py "Show me the latest job postings"
 
 # See Show HN projects
-python hn-agent.py "What interesting projects are people showing?"
+python hacker-news-agent.py "What interesting projects are people showing?"
 
 # Verbose mode to see tool calls
-python hn-agent.py -v "What are the best stories this week?"
+python hacker-news-agent.py -v "What are the best stories this week?"
 ```
 
 **Advanced Examples:**
 
 ```bash
 # Use a different model
-python hn-agent.py -m qwen3:8b "AI and machine learning discussions"
+python hacker-news-agent.py -m qwen3:8b "AI and machine learning discussions"
 
 # Get more results
-python hn-agent.py -n 20 "Latest news about startups"
+python hacker-news-agent.py -n 20 "Latest news about startups"
 
 # Combine options
-python hn-agent.py -v -m llama3.1:8b -n 15 "Find discussions about Python"
+python hacker-news-agent.py -v -m llama3.1:8b -n 15 "Find discussions about Python"
 ```
 
 **Command-Line Options:**
