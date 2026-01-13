@@ -31,12 +31,18 @@ Unsupported: gemma:7b
 Debug script to test the image search and display pipeline. Run this if images aren't showing in search-agent.py.
 
 ```bash
+# Search with default term (llama)
 python utils/test-image.py
+
+# Search for a single term
+python utils/test-image.py cat
+
+# Search for multiple terms (each searched separately)
+python utils/test-image.py llama cat dog
 ```
 
 This tests:
 
 1. chafa installation
-2. DuckDuckGo image search
-3. Image download
-4. Terminal display
+2. DuckDuckGo image search (3 results per term)
+3. Image download and terminal display for all results
