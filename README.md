@@ -84,7 +84,8 @@ python utils/test-tool-support.py llama3.1:8b
 
 ```
 ├── search-agent.py      # Web search agent (DuckDuckGo)
-├── hacker-news-agent.py          # Hacker News agent
+├── hacker-news-agent.py # Hacker News agent
+├── search-image.py      # Image search tool
 ├── examples/            # Learning examples (see examples/README.md)
 ├── utils/               # Helper scripts (see utils/README.md)
 ├── README.md
@@ -232,6 +233,30 @@ The agent provides structured analysis including:
 - **Project Ideas**: Hobby project suggestions inspired by the stories
 - **Sources**: Links to HN discussions
 
+---
+
+### search-image.py
+
+A standalone image search tool that searches DuckDuckGo for images and displays them in terminal using chafa.
+
+**Usage:**
+
+```bash
+# Search with default term (llama)
+python search-image.py
+
+# Search for a single term
+python search-image.py cat
+
+# Search for multiple terms (each searched separately)
+python search-image.py llama cat dog
+
+# Using bash brace expansion for related searches
+python search-image.py {C,zig,rust}" logo programming language"
+```
+
+Displays 3 images per search term.
+
 ## Supported Ollama Models
 
 Models known to support tool calling:
@@ -271,7 +296,7 @@ ollama serve
 ### Images not displaying
 
 1. Install chafa: `sudo apt install chafa`
-2. Run `python utils/test-image.py` to diagnose
+2. Run `python search-image.py` to test the image pipeline
 3. Some images may fail due to website restrictions (403 errors)
 
 ### Model doesn't support tools
