@@ -252,7 +252,7 @@ python search-image.py cat
 python search-image.py llama cat dog
 
 # Using bash brace expansion for related searches
-python search-image.py {C,zig,rust}" logo programming language"
+python search-image.py "logo for "{C,Rust,Zig}" programming language"
 ```
 
 Displays 3 images per search term.
